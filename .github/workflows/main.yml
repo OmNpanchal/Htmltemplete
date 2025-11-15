@@ -1,19 +1,23 @@
-name: Deploy Static Website to Windows EC2
+name: Deploy Static Site to Windows EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   deploy:
-    runs-on: self-hosted   # Your Windows EC2 Runner
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Deploy to IIS wwwroot
+      - name: Clear IIS Folder
         run: |
-          Write-Host "Copying files to IIS..."
-          Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\inetpub\wwwroot" -Recurse -Force
+          if (Test-Path "C:\inetpub\wwwroot") {
+            Remove-Item "C:\inetpub\wwwroot\*" -Recurse -Force
+          }
+
+      - name: Deploy Website (XCOPY)
+        run: |
+          xcopy "$env:GITHUB_WORKSPACE" "C:\inetpub\wwwroot" /E /H /C /I /Y
