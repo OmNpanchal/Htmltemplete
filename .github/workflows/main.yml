@@ -1,0 +1,19 @@
+name: Deploy Static Website to Windows EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted   # Your Windows EC2 Runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to IIS wwwroot
+        run: |
+          Write-Host "Copying files to IIS..."
+          Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\inetpub\wwwroot" -Recurse -Force
